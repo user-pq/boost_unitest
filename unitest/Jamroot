@@ -1,0 +1,43 @@
+import testing ; 
+import os ; 
+import path ; 
+
+path-constant TEST_DIR : . ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = /home/pq/boost_1_62_0 ;
+}
+
+local BOOST_LIB_IDR = $(BOOST_ROOT)/stage/lib ; 
+
+# 强制其他模块都使用一致的BOOST版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+project
+    : requirements
+     <cxxflags>-std=c++11
+     <cxxflags>-w
+     <toolset>gcc
+     <include>$(BOOST_ROOT)/../turtle-1.3.0/include
+     <include>$(TEST_DIR)/../include
+     <include>$(BOOST_ROOT)
+    ;
+
+for src in [ glob-tree test*.cpp ]
+{
+    TEST_NAME = $(src::BS=) ;
+    run # sources
+        $(src)
+            $(BOOST_LIB_IDR)/libboost_filesystem.so.1.62.0
+            $(BOOST_LIB_IDR)/libboost_system.so.1.62.0
+            $(BOOST_LIB_IDR)/libboost_locale.so.1.62.0
+            $(TEST_DIR)/../lib/libalarm_list.so
+        : # args
+        : # input-files
+        : # requirements
+        : # target-name
+            $(TEST_NAME)
+        ;
+}

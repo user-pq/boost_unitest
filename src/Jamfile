@@ -1,0 +1,26 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+ECHO $(CWD) ; 
+
+project
+    : requirements
+     <include>$(CWD)/../include/
+    : usage-requirements
+     <include>$(CWD)/../include/
+    ;
+
+alias dependencies
+    :
+    ;
+
+for src in [ glob *.cpp ]
+{
+    TARGET_NAME = $(src::BS=) ;
+    lib $(TARGET_NAME) : $(src)
+        : <implicit-dependency>/boost//headers
+        :
+        : <library>dependencies
+        ;
+}

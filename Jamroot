@@ -1,0 +1,43 @@
+import os ; 
+import path ;
+ 
+path-constant CWD : . ;
+
+# 引入boost库
+path-constant BOOST_ROOT : [ os.environ BOOST_ROOT ] ;
+
+path-constant LIB_DIR : $(CWD)/lib ;
+
+# 强制其他模块都使用一致的BOOST版本
+modules.poke BOOST_ROOT : $(BOOST_ROOT) ; 
+
+alias dependencies
+    :
+    ;
+
+project
+    : requirements
+     <implicit-dependency>/boost//headers
+     <debug-symbols>on
+     <threading>multi
+     <cxxflags>-std=c++11
+     $(dependencies)
+    : default-build debug
+     <link>shared
+    : build-dir bin
+    ;
+
+use-project /boost : $(BOOST_ROOT) ;
+use-project /src : src ;
+
+build-project src ;
+
+explicit install ; 
+alias install :
+    [ install dist_lib 
+        : src   
+        : <install-type>LIB
+          <location>$(LIB_DIR)/
+    ]
+    ;
+
